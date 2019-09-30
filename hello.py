@@ -1,3 +1,5 @@
-for n in range(10):
-    print('Hello World')
 
+def calc(s):
+    return int(s)
+
+print(calc("1"))    
