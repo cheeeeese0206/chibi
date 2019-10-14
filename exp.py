@@ -15,23 +15,42 @@ v = Val(1)
 print(v)
 assert v.eval() == 1
 
-assert isinstance(v, Expr)
-assert isinstance(v, Val)
-assert isinstance(v, int)
+#assert isinstance(v, Expr)
+#assert isinstance(v, Val)
+#assert not isinstance(v, int)
 
-class Add(object):
+class Add(Expr):
     __slots__ = ['left', 'right']
     def __init__(self, a, b):
+        if not isinstance(a, Expr):
+            a = Val(a)
+        if not isinstance(b, Expr):
+            b = Val(b)
         self.left  = a
         self.right = b
     def eval(self):
         return self.left.eval() + self.right.eval()
 
-e = Add(Val(1),Val(2))
-assert e.eval() == 3
+class Mul(Expr):
+    __slots__ = ['left', 'right']
+    def __init__(self, c, d):
+        self.left  = c
+        self.right = d
+    def eval(self):
+        return self.left.eval() * self.right.eval()
 
-e = Add(Val(1),Add(Val(2),Val(3)))
-assert e.eval() == 6
+e = Add(1,Add(1,2))
+print(e.eval())
+assert e.eval() == 4
+
+#e = Mul(Val(1), Val(2))
+#assert e.eval() == 2
+
+#e = Add(1,2)
+#assert e.eval() == 3
+
+#e = Add(Val(1), Add(Val(2),Val(3)))
+#assert e.eval() == 6
 
 
 
