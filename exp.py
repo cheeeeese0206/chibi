@@ -15,9 +15,14 @@ v = Val(1)
 print(v)
 assert v.eval() == 1
 
-#assert isinstance(v, Expr)
-#assert isinstance(v, Val)
-#assert not isinstance(v, int)
+assert isinstance(v, Expr)
+assert isinstance(v, Val)
+assert not isinstance(v, int)
+
+    def toExpr(a):
+        if not isinstance(a, Expr):
+            a = Val(a)
+    return a
 
 class Add(Expr):
     __slots__ = ['left', 'right']
@@ -31,13 +36,14 @@ class Add(Expr):
     def eval(self):
         return self.left.eval() + self.right.eval()
 
-class Mul(Expr):
-    __slots__ = ['left', 'right']
-    def __init__(self, c, d):
-        self.left  = c
-        self.right = d
-    def eval(self):
-        return self.left.eval() * self.right.eval()
+    def expr(x):
+        if not hasattr(x,’eval’):
+            x = Val(x)
+        return x
+
+    def __repr__(self):
+    classname = self.Binary.__name__
+    return f’{classname}({self.left},{self.right})’
 
 e = Add(1,Add(1,2))
 print(e.eval())
