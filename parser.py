@@ -7,6 +7,10 @@ def parse(s: str):
 e = parse("123")
 print(e)
 
-s = "1+2"
-pos = s.find('+')
+s = "123+456"
+pos = s.find('+') #+記号を探す
 print('pos', pos)
+
+s1 = s[0:pos]
+s2 = s[pos+1:]
+print(s,s1,s2) #+記号で分割
