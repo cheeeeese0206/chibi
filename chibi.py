@@ -11,6 +11,7 @@ class Expr(object):
             return v
         return Val(v)
 
+
 class Val(Expr):
     __slots__ = ['value']
     def __init__(self, value):
@@ -76,7 +77,7 @@ class Assign(Expr):
         env[self.name] = self.e.eval(env)
         return env[self.name]
 
-
+'''
 print('少しテスト')
 
 env = {}
@@ -85,7 +86,7 @@ print(e.eval(env))
 e = Assign('x',Add(Var('x'), Val(2)))
 print(e.eval(env))
 
-'''
+
 try:
     e = Var('x')
     print(e.eval({'x': 123}))
