@@ -2,16 +2,18 @@ import pegpy
 #from pegpy.tpeg import ParseTree
 peg = pegpy.grammar('chibi.tpeg')
 parser = pegpy.generate(peg)
-
-
+'''
+tree = parser('1+2*3')
+print(repr(tree))
+tree = parser('1@2*3')
+print(repr(tree))
+'''
 class Expr(object):
     @classmethod
     def new(cls, v):
         if isinstance(v, Expr):
             return v
         return Val(v)
-
-
 class Val(Expr):
     __slots__ = ['value']
     def __init__(self, value):
@@ -21,9 +23,7 @@ class Val(Expr):
     def eval(self, env: dict):
         return self.value
 e = Val(0)
-
 assert e.eval({}) == 0
-
 class Binary(Expr):
     __slots__ = ['left', 'right']
     def __init__(self, left, right):
@@ -32,31 +32,41 @@ class Binary(Expr):
     def __repr__(self):
         classname = self.__class__.__name__
         return f'{classname}({self.left},{self.right})'
-
 class Add(Binary):
     __slots__ = ['left', 'right']
     def eval(self, env: dict):
         return self.left.eval(env) + self.right.eval(env)
-
 class Sub(Binary):
     __slots__ = ['left', 'right']
     def eval(self, env: dict):
         return self.left.eval(env) - self.right.eval(env)
-
 class Mul(Binary):
     __slots__ = ['left', 'right']
     def eval(self, env: dict):
         return self.left.eval(env) * self.right.eval(env)
-
 class Div(Binary):
     __slots__ = ['left', 'right']
     def eval(self, env: dict):
         return self.left.eval(env) // self.right.eval(env)
-
 class Mod(Binary):
     __slots__ = ['left', 'right']
     def eval(self, env: dict):
         return self.left.eval(env) % self.right.eval(env)
+
+class Eq(Binary):
+    __slots__ = ['left', 'right']
+    def eval(self, env: dict):
+        return 1 if self.left.eval(env) == self.right.eval(env) else 0
+
+class Ne(Binary):
+    __slots__ = ['left', 'right']
+    def eval(self, env: dict):
+        return 1 if self.left.eval(env) == self.right.eval(env) else 0
+
+class Lt(Binary):
+    __slots__ = ['left', 'right']
+    def eval(self, env: dict):
+        return 1 if self.left.eval(env) == self.right.eval(env) else 0
 
 class Var(Expr):
     __slots__ = ['name']
@@ -66,37 +76,14 @@ class Var(Expr):
         if self.name in env:
             return env[self.name]
         raise NameError(self.name)
-
 class Assign(Expr):
-    __slots__=[]
+    __slots__ = ['name', 'e']
     def __init__(self, name, e):
-        self.name = name 
+        self.name = name
         self.e = Expr.new(e)
-
     def eval(self, env):
         env[self.name] = self.e.eval(env)
         return env[self.name]
-
-'''
-print('少しテスト')
-
-env = {}
-e = Assign('x', Val(1))
-print(e.eval(env))
-e = Assign('x',Add(Var('x'), Val(2)))
-print(e.eval(env))
-
-
-try:
-    e = Var('x')
-    print(e.eval({'x': 123}))
-except NameError:
-    print('未定義の変数です')
-'''
-
-print('テスト終わり')
-
-
 def conv(tree):
     if tree == 'Block':
         return conv(tree[0])
@@ -105,7 +92,7 @@ def conv(tree):
     if tree == 'Add':
         return Add(conv(tree[0]), conv(tree[1]))
     if tree == 'Sub':
-        return Sub(conv(tree[0]), conv(tree[1]))
+        return Sub(conv(tree[0]), conv(tree[1]))    
     if tree == 'Mul':
         return Mul(conv(tree[0]), conv(tree[1]))
     if tree == 'Div':
@@ -118,7 +105,6 @@ def conv(tree):
         return Assign(str(tree[0]), conv(tree[1]))
     print('@TODO', tree.tag, repr(tree))
     return Val(str(tree))
-
 def run(src: str, env: dict):
     tree = parser(src)
     if tree.isError():
@@ -127,7 +113,6 @@ def run(src: str, env: dict):
         e = conv(tree)
         print('env', env)
         print(e.eval(env))
-
 def main():
     try:
         env = {}
@@ -138,6 +123,5 @@ def main():
             run(s, env)
     except EOFError:
         return
-
 if __name__ == '__main__':
     main()
